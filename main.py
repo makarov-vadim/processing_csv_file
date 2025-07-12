@@ -8,17 +8,16 @@ from tabulate import tabulate
 
 class ProcessingCsvFile:
 
-    def __init__(self, delimiter: str = ",", quotechar: str = '"'):
+    def __init__(self, file_name: str = None, delimiter: str = ",", quotechar: str = '"'):
         self._delimiter = delimiter
         self._quotechar = quotechar
+        self._file_name = file_name
 
-        self._args = None
-        self._file_name = None
+        self.args = None
         self._file_content = None
 
         self._parse_args()
         self._open_file()
-
 
 
     @property
@@ -35,9 +34,9 @@ class ProcessingCsvFile:
     def file_content(self):
         return self._file_content
 
-    @property
-    def args(self):
-        return self._args
+    # @property
+    # def args(self):
+    #     return self.args
 
 
     @property
@@ -65,8 +64,11 @@ class ProcessingCsvFile:
 
     def _open_file(self):
         if self.file_name is None:
-            print('Не указан путь к файлу. Пример: "--file file_path"')
-            exit()
+            if self.args.file is None:
+                print('Не указан путь к файлу. Пример: "--file file_path"')
+                exit()
+            else:
+                self._file_name = self.args.file
         try:
             with open(self.file_name, encoding='utf-8') as file:
                 rows = csv.DictReader(file, delimiter=self.delimiter, quotechar=self.quotechar)
@@ -84,8 +86,7 @@ class ProcessingCsvFile:
         self._parser.add_argument("--aggregate", type=str, help='Способ агрегации. Пример: --aggregate "column_name=max"')
         self._parser.add_argument("--order-by", type=str, help='Способ сортировки. Пример: --order-by "column_name=desc"')
 
-        self._args = self._parser.parse_args()
-        self._file_name = self.args.file
+        self.args = self._parser.parse_args()
 
 
     def print_file_content(self):
@@ -178,7 +179,7 @@ class ProcessingCsvFile:
             exit()
 
 
-def where(processing_csv_file: ProcessingCsvFile, args: Namespace):
+def where(processing_csv_file: ProcessingCsvFile):
     _functions = {
         "<": processing_csv_file.filter_less_than,
         ">": processing_csv_file.filter_greater_than,
@@ -188,8 +189,8 @@ def where(processing_csv_file: ProcessingCsvFile, args: Namespace):
 
     try:
         for operator in _functions:
-            if operator in args.where:
-                column, value = args.where.split(operator)
+            if operator in processing_csv_file.args.where:
+                column, value = processing_csv_file.args.where.split(operator)
                 value = processing_csv_file.convert_to_numeric(value)
                 _functions[operator](column, value)
                 break
@@ -199,7 +200,7 @@ def where(processing_csv_file: ProcessingCsvFile, args: Namespace):
         print(_err_message)
 
 
-def aggregate(processing_csv_file: ProcessingCsvFile, args: Namespace):
+def aggregate(processing_csv_file: ProcessingCsvFile):
     _functions = {
         "min": processing_csv_file.aggregate_min,
         "max": processing_csv_file.aggregate_max,
@@ -208,7 +209,7 @@ def aggregate(processing_csv_file: ProcessingCsvFile, args: Namespace):
     _err_message = 'Некорректное условие в аргументе --aggregate. Пример: --aggregate "column_name=max"'
 
     try:
-        column, method = args.aggregate.split("=")
+        column, method = processing_csv_file.args.aggregate.split("=")
         _functions[method](column)
     except ValueError:
         print(_err_message)
@@ -216,7 +217,7 @@ def aggregate(processing_csv_file: ProcessingCsvFile, args: Namespace):
         print('Некорректный способ агрегации. Используйте "min", "max" или "avg"')
 
 
-def order_by(processing_csv_file: ProcessingCsvFile, args: Namespace):
+def order_by(processing_csv_file: ProcessingCsvFile):
     _functions = {
         "asc": processing_csv_file.order_by_asc,
         "desc": processing_csv_file.order_by_desc
@@ -224,7 +225,7 @@ def order_by(processing_csv_file: ProcessingCsvFile, args: Namespace):
     _err_message = 'Некорректное условие в аргументе --order-by. Пример: --order-by "column_name=desc"'
 
     try:
-        column, method = args.order_by.split("=")
+        column, method = processing_csv_file.args.order_by.split("=")
         _functions[method](column)
     except ValueError:
         print(_err_message)
@@ -232,26 +233,31 @@ def order_by(processing_csv_file: ProcessingCsvFile, args: Namespace):
         print('Некорректный способ сортировки. Используйте "asc" или "desc"')
 
 
-def main():
-    processing_csv_file = ProcessingCsvFile()
-    args = processing_csv_file.args
+def main(file_name: str = None, option: str = None, argument: str = None):
+    _options = {
+        "where": where,
+        "aggregate": aggregate,
+        "order_by": order_by
+    }
 
-    if args.file is None:
+    processing_csv_file = ProcessingCsvFile(file_name)
+
+    if file_name:
+        if all((option, argument)) and option in _options:
+            processing_csv_file.args = argparse.Namespace(**{"file": file_name, option: argument})
+        processing_csv_file.args = argparse.Namespace(**{"file": file_name})
+
+    if processing_csv_file.args.file is None:
         print("Не указан путь к файлу")
 
-    if args.where:
-        where(processing_csv_file, args)
-    elif args.aggregate:
-        aggregate(processing_csv_file, args)
-    elif args.order_by:
-        order_by(processing_csv_file, args)
-
-    elif args.file:
-        print(args.file)
+    for csv_option in _options:
+        if hasattr(processing_csv_file.args, csv_option):
+            _options[csv_option](processing_csv_file)
+            break
+    else:
         processing_csv_file.print_file_content()
 
 
-
-
 if __name__ == "__main__":
-    main()
+    # main(file_name="products.csv", option="where", argument="rating>4.5")
+    main(file_name="products.csv")
