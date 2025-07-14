@@ -80,8 +80,9 @@ class ProcessingCsvFile:
 
     def _read_file(self):
         if self.args.file is None:
-            print('Не указан путь к файлу. Пример: "--file file_path"')
-            exit()
+            _err_message = 'Не указан путь к файлу. Пример: "--file file_path"'
+            print(_err_message)
+            return _err_message
         else:
             self._file_name = self.args.file
         try:
@@ -89,8 +90,9 @@ class ProcessingCsvFile:
                 rows = csv.DictReader(file, delimiter=self.delimiter, quotechar=self.quotechar)
                 return [{key: self.convert_to_numeric(value) for key, value in row.items()} for row in rows]
         except FileNotFoundError:
-            print('Введен некорректный путь к файлу. Пример: "--file file_path"')
-            exit()
+            _err_message = 'Введен некорректный путь к файлу. Пример: "--file file_path"'
+            print(_err_message)
+            return _err_message
 
 
     def _parse_args(self):
@@ -107,7 +109,9 @@ class ProcessingCsvFile:
         if hasattr(self.args, option):
             setattr(self.args, option, value)
         else:
-            print(f"Аргумент {arg} задан неверно")
+            _err_message = f"Аргумент {arg} задан неверно"
+            print(_err_message)
+            return _err_message
 
 
     def print_file_content(self):
@@ -121,8 +125,10 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print('Указан некорректный столбец для аргумента --where')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --where: "{column}"'
+            print(_err_message)
+            return _err_message
+
 
 
     def _filter_less_than(self, column: str, value: str | int | float):
@@ -131,12 +137,13 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --where: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --where: "{column}"'
+            print(_err_message)
+            return _err_message
         except TypeError:
-            print(f'Указано некорректное значение для аргумента --where: "{value}"')
-            exit()
-
+            _err_message = f'Указано некорректное значение для аргумента --where: "{value}"'
+            print(_err_message)
+            return _err_message
 
 
     def _filter_greater_than(self, column: str, value: str | int | float):
@@ -145,11 +152,14 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --where: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --where: "{column}"'
+            print(_err_message)
+            return _err_message
         except TypeError:
-            print(f'Указано некорректное значение для аргумента --where: "{value}"')
-            exit()
+            _err_message = f'Указано некорректное значение для аргумента --where: "{value}"'
+            print(_err_message)
+            return _err_message
+
 
     def _aggregate_min(self, column: str):
         try:
@@ -160,8 +170,9 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --aggregate: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --aggregate: "{column}"'
+            print(_err_message)
+            return _err_message
 
 
     def _aggregate_max(self, column: str):
@@ -173,9 +184,9 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --aggregate: "{column}"')
-            exit()
-
+            _err_message = f'Указан некорректный столбец для аргумента --aggregate: "{column}"'
+            print(_err_message)
+            return _err_message
 
     def _aggregate_avg(self, column: str):
         try:
@@ -185,8 +196,9 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --aggregate: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --aggregate: "{column}"'
+            print(_err_message)
+            return _err_message
 
 
     def _order_by_asc(self, column: str):
@@ -195,8 +207,9 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --order-by: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --order-by: "{column}"'
+            print(_err_message)
+            return _err_message
 
 
     def _order_by_desc(self, column: str):
@@ -205,8 +218,10 @@ class ProcessingCsvFile:
             self._print_table(result)
             return result
         except KeyError:
-            print(f'Указан некорректный столбец для аргумента --order-by: "{column}"')
-            exit()
+            _err_message = f'Указан некорректный столбец для аргумента --order-by: "{column}"'
+            print(_err_message)
+            return _err_message
+
 
     def _where(self):
         _options: dict[str, Callable] = {
@@ -224,8 +239,10 @@ class ProcessingCsvFile:
                     return _options[operator](column, value)
             else:
                 print(_err_message)
+                return _err_message
         except ValueError:
             print(_err_message)
+            return _err_message
 
 
     def _aggregate(self):
@@ -234,15 +251,19 @@ class ProcessingCsvFile:
             "max": self._aggregate_max,
             "avg": self._aggregate_avg
         }
-        _err_message = 'Некорректное условие в аргументе --aggregate. Пример: --aggregate "column_name=max"'
+        _value_err_message = 'Некорректное условие в аргументе --aggregate. Пример: --aggregate "column_name=max"'
+        _key_err_message = 'Некорректный способ агрегации. Используйте "min", "max" или "avg"'
 
         try:
             column, method = self.args.aggregate.split("=")
             return _options[method](column)
         except ValueError:
-            print(_err_message)
+            print(_value_err_message)
+            return _value_err_message
         except KeyError:
-            print('Некорректный способ агрегации. Используйте "min", "max" или "avg"')
+            print(_key_err_message)
+            return _key_err_message
+
 
 
     def _order_by(self):
@@ -250,15 +271,18 @@ class ProcessingCsvFile:
             "asc": self._order_by_asc,
             "desc": self._order_by_desc
         }
-        _err_message = 'Некорректное условие в аргументе --order-by. Пример: --order-by "column_name=desc"'
+        _value_err_message = 'Некорректное условие в аргументе --order-by. Пример: --order-by "column_name=desc"'
+        _key_err_message = 'Некорректный способ сортировки. Используйте "asc" или "desc"'
 
         try:
             column, method = self.args.order_by.split("=")
             return _options[method](column)
         except ValueError:
-            print(_err_message)
+            print(_value_err_message)
+            return _value_err_message
         except KeyError:
-            print('Некорректный способ сортировки. Используйте "asc" или "desc"')
+            print(_key_err_message)
+            return _key_err_message
 
     def process_csv_file(self):
         args_without_file = {k: v for k, v in vars(self.args).items() if k != "file"}
