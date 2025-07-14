@@ -1,7 +1,6 @@
 from argparse import Namespace
 
 import pytest
-from pytest import CaptureFixture
 
 from main import main
 
@@ -80,108 +79,108 @@ class ExpectedResult:
 
 
 class TData:
-    FILE_NAME = "products.csv"
+    FILE_NAME = "exemple/products.csv"
 
-    WITHOUT_ARGUMENTS = None
-    ARGUMENT_WHERE_PRICE_LESS_400 = ("where", "price<400")
-    ARGUMENT_WHERE_PRICE_GREATER_400 = ("where", "price>400")
-    ARGUMENT_WHERE_PRICE_EQUAL_999 = ("where", "price=999")
-    ARGUMENT_AGGREGATE_RATING_MIN = ("aggregate", "rating=min")
-    ARGUMENT_AGGREGATE_RATING_MAX = ("aggregate", "rating=max")
-    ARGUMENT_AGGREGATE_RATING_AVG = ("aggregate", "rating=avg")
-    ARGUMENT_ORDER_BY_BRAND_ASC = ("order_by", "brand=asc")
-    ARGUMENT_ORDER_BY_BRAND_DESC = ("order_by", "brand=desc")
+    ARGUMENT_ONLY_FILE = Namespace(**{"file": FILE_NAME})
+    ARGUMENTS_WHERE_PRICE_LESS_400 = Namespace(**{"file": FILE_NAME, "where": "price<400"})
+    ARGUMENTS_WHERE_PRICE_GREATER_400 = Namespace(**{"file": FILE_NAME, "where": "price>400"})
+    ARGUMENTS_WHERE_PRICE_EQUAL_999 = Namespace(**{"file": FILE_NAME, "where": "price=999"})
+    ARGUMENTS_AGGREGATE_RATING_MIN = Namespace(**{"file": FILE_NAME, "aggregate": "rating=min"})
+    ARGUMENTS_AGGREGATE_RATING_MAX = Namespace(**{"file": FILE_NAME, "aggregate": "rating=max"})
+    ARGUMENTS_AGGREGATE_RATING_AVG = Namespace(**{"file": FILE_NAME, "aggregate": "rating=avg"})
+    ARGUMENTS_ORDER_BY_BRAND_ASC = Namespace(**{"file": FILE_NAME, "order_by": "brand=asc"})
+    ARGUMENTS_ORDER_BY_BRAND_DESC = Namespace(**{"file": FILE_NAME, "order_by": "brand=desc"})
 
-    ARGUMENT_WHERE_INVALID_PRICE_LESS_400 = ("where", "invalid_price<400")
-    ARGUMENT_WHERE_INVALID_PRICE_GREATER_400 = ("where", "invalid_price>400")
-    ARGUMENT_WHERE_INVALID_PRICE_EQUAL_999 = ("where", "invalid_price=999")
-    ARGUMENT_AGGREGATE_INVALID_RATING_MIN = ("aggregate", "invalid_rating=min")
-    ARGUMENT_AGGREGATE_INVALID_RATING_MAX = ("aggregate", "invalid_rating=max")
-    ARGUMENT_AGGREGATE_INVALID_RATING_AVG = ("aggregate", "invalid_rating=avg")
-    ARGUMENT_ORDER_BY_INVALID_BRAND_ASC = ("order_by", "invalid_brand=asc")
-    ARGUMENT_ORDER_BY_INVALID_BRAND_DESC = ("order_by", "invalid_brand=desc")
+    ARGUMENTS_WHERE_INVALID_PRICE_LESS_400 = Namespace(**{"file": FILE_NAME, "where": "invalid_price<400"})
+    ARGUMENTS_WHERE_INVALID_PRICE_GREATER_400 = Namespace(**{"file": FILE_NAME, "where": "invalid_price>400"})
+    ARGUMENTS_WHERE_INVALID_PRICE_EQUAL_999 = Namespace(**{"file": FILE_NAME, "where": "invalid_price=999"})
+    ARGUMENTS_AGGREGATE_INVALID_RATING_MIN = Namespace(**{"file": FILE_NAME, "aggregate": "invalid_rating=min"})
+    ARGUMENTS_AGGREGATE_INVALID_RATING_MAX = Namespace(**{"file": FILE_NAME, "aggregate": "invalid_rating=max"})
+    ARGUMENTS_AGGREGATE_INVALID_RATING_AVG = Namespace(**{"file": FILE_NAME, "aggregate": "invalid_rating=avg"})
+    ARGUMENTS_ORDER_BY_INVALID_BRAND_ASC = Namespace(**{"file": FILE_NAME, "order_by": "invalid_brand=asc"})
+    ARGUMENTS_ORDER_BY_INVALID_BRAND_DESC = Namespace(**{"file": FILE_NAME, "order_by": "invalid_brand=desc"})
 
-file_name = "products.csv"
+
 valid_data = [
     {
-        "description": "without arguments",
-        "argument": TData.WITHOUT_ARGUMENTS,
+        "description": "argument only file",
+        "argument": TData.ARGUMENT_ONLY_FILE,
         "expected_result": ExpectedResult.WITHOUT_ARGUMENTS
     },
     {
         "description": "where price<400",
-        "argument": TData.ARGUMENT_WHERE_PRICE_LESS_400,
+        "argument": TData.ARGUMENTS_WHERE_PRICE_LESS_400,
         "expected_result": ExpectedResult.WHERE_PRICE_LESS_400
     },
     {
         "description": "where price>400",
-        "argument": TData.ARGUMENT_WHERE_PRICE_GREATER_400,
+        "argument": TData.ARGUMENTS_WHERE_PRICE_GREATER_400,
         "expected_result": ExpectedResult.WHERE_PRICE_GREATER_400},
     {
         "description": "where price=999",
-        "argument": TData.ARGUMENT_WHERE_PRICE_EQUAL_999,
+        "argument": TData.ARGUMENTS_WHERE_PRICE_EQUAL_999,
         "expected_result": ExpectedResult.WHERE_PRICE_EQUAL_999},
     {
         "description": "aggregate rating=min",
-        "argument": TData.ARGUMENT_AGGREGATE_RATING_MIN,
+        "argument": TData.ARGUMENTS_AGGREGATE_RATING_MIN,
         "expected_result": ExpectedResult.AGGREGATE_RATING_MIN},
     {
         "description": "aggregate rating=max",
-        "argument": TData.ARGUMENT_AGGREGATE_RATING_MAX,
+        "argument": TData.ARGUMENTS_AGGREGATE_RATING_MAX,
         "expected_result": ExpectedResult.AGGREGATE_RATING_MAX},
     {
         "description": "aggregate rating=avg",
-        "argument": TData.ARGUMENT_AGGREGATE_RATING_AVG,
+        "argument": TData.ARGUMENTS_AGGREGATE_RATING_AVG,
         "expected_result": ExpectedResult.AGGREGATE_RATING_AVG},
     {
         "description": "order_by brand=asc",
-        "argument": TData.ARGUMENT_ORDER_BY_BRAND_ASC,
+        "argument": TData.ARGUMENTS_ORDER_BY_BRAND_ASC,
         "expected_result": ExpectedResult.ORDER_BY_BRAND_ASC},
     {
         "description": "order_by brand=desc",
-        "argument": TData.ARGUMENT_ORDER_BY_BRAND_DESC,
+        "argument": TData.ARGUMENTS_ORDER_BY_BRAND_DESC,
         "expected_result": ExpectedResult.ORDER_BY_BRAND_DESC}
 ]
 
 invalid_columns = [
     {
         "description": "where invalid_price<400",
-        "argument": TData.ARGUMENT_WHERE_INVALID_PRICE_LESS_400,
+        "argument": TData.ARGUMENTS_WHERE_INVALID_PRICE_LESS_400,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_PRICE
     },
     {
         "description": "where invalid_price>400",
-        "argument": TData.ARGUMENT_WHERE_INVALID_PRICE_GREATER_400,
+        "argument": TData.ARGUMENTS_WHERE_INVALID_PRICE_GREATER_400,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_PRICE
     },
     {
         "description": "where invalid_price=999",
-        "argument": TData.ARGUMENT_WHERE_INVALID_PRICE_EQUAL_999,
+        "argument": TData.ARGUMENTS_WHERE_INVALID_PRICE_EQUAL_999,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_PRICE
     },
     {
         "description": "aggregate invalid_rating=min",
-        "argument": TData.ARGUMENT_AGGREGATE_INVALID_RATING_MIN,
+        "argument": TData.ARGUMENTS_AGGREGATE_INVALID_RATING_MIN,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_RATING
     },
     {
         "description": "aggregate invalid_rating=max",
-        "argument": TData.ARGUMENT_AGGREGATE_INVALID_RATING_MAX,
+        "argument": TData.ARGUMENTS_AGGREGATE_INVALID_RATING_MAX,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_RATING
     },
     {
         "description": "aggregate invalid_rating=avg",
-        "argument": TData.ARGUMENT_AGGREGATE_INVALID_RATING_AVG,
+        "argument": TData.ARGUMENTS_AGGREGATE_INVALID_RATING_AVG,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_RATING
     },
     {
         "description": "order_by invalid_brand=asc",
-        "argument": TData.ARGUMENT_ORDER_BY_INVALID_BRAND_ASC,
+        "argument": TData.ARGUMENTS_ORDER_BY_INVALID_BRAND_ASC,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_BRAND
     },
     {
         "description": "order_by invalid_brand=desc",
-        "argument": TData.ARGUMENT_ORDER_BY_INVALID_BRAND_DESC,
+        "argument": TData.ARGUMENTS_ORDER_BY_INVALID_BRAND_DESC,
         "expected_result": ExpectedResult.ERR_MESSAGE_INVALID_BRAND
     }
 ]
@@ -191,7 +190,7 @@ class TestProcessingCsvFile:
 
     @pytest.mark.parametrize("data", valid_data)
     def test_valid_data(self, data):
-        actual_result = main(file_name=TData.FILE_NAME, argument=data["argument"])
+        actual_result = main(arguments=data["argument"])
         expected_result = data["expected_result"]
 
         err_text = f"В тесте {data["description"]} \nфактический результат: \n{actual_result} \nне совпадает с ожидаемым: \n{expected_result}"
@@ -199,9 +198,9 @@ class TestProcessingCsvFile:
         assert actual_result == expected_result, err_text
 
     @pytest.mark.parametrize("data", invalid_columns)
-    def test_invalid_columns(self, data, capsys: pytest.CaptureFixture[str]):
+    def test_invalid_columns(self, data):
         try:
-            actual_result = main(file_name=TData.FILE_NAME, argument=data["argument"])
+            actual_result = main(arguments=data["argument"])
         except:
             pass
         expected_result = data["expected_result"]

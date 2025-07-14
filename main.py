@@ -11,21 +11,20 @@ class ProcessingCsvFile:
 
     def __init__(
             self,
-            file_name: str|None = None,
-            argument: tuple[str, str]|None = None,
+            arguments: Namespace | None = None,
             delimiter: str = ",",
-            quotechar: str = '"'):
+            quotechar: str = '"'
+    ):
 
         self._delimiter = delimiter
         self._quotechar = quotechar
 
         self._parser = argparse.ArgumentParser()
-        self._args = self._parse_args()
 
-        if file_name is not None:
-            self._change_arg(("file", file_name))
-        if argument is not None:
-            self._change_arg(argument)
+        if arguments is not None:
+            self._args = self._parse_args(arguments)
+        else:
+            self._args = self._parse_args_from_console()
         self._file_content = self._read_file()
 
     @property
@@ -57,7 +56,7 @@ class ProcessingCsvFile:
 
     @property
     def file_name(self):
-        return self._file_name
+        return self.args.file
 
 
     @staticmethod
@@ -79,10 +78,10 @@ class ProcessingCsvFile:
 
 
     def _read_file(self):
-        if self.args.file is None:
+        if not hasattr(self.args, "file") or self.args.file is None:
             _err_message = 'Не указан путь к файлу. Пример: "--file file_path"'
             print(_err_message)
-            return _err_message
+            exit()
         else:
             self._file_name = self.args.file
         try:
@@ -92,16 +91,22 @@ class ProcessingCsvFile:
         except FileNotFoundError:
             _err_message = 'Введен некорректный путь к файлу. Пример: "--file file_path"'
             print(_err_message)
-            return _err_message
+            exit()
 
 
-    def _parse_args(self):
+    def _parse_args(self, arguments: Namespace):
+        print(vars(arguments))
+        self._parser.parse_args([])
+        return arguments
+
+
+    def _parse_args_from_console(self):
         self._parser.add_argument("--file", type=str, help='Путь к файлу. Пример: "--file file_path')
         self._parser.add_argument("--where", type=str, help='Условие фильтрации. Пример: --where "column_name=value"')
         self._parser.add_argument("--aggregate", type=str, help='Способ агрегации. Пример: --aggregate "column_name=max"')
         self._parser.add_argument("--order-by", type=str, help='Способ сортировки. Пример: --order-by "column_name=desc"')
 
-        return self._parser.parse_args([])
+        return self._parser.parse_args()
 
 
     def _change_arg(self, arg: tuple[str, str]):
@@ -296,8 +301,8 @@ class ProcessingCsvFile:
             return None
 
 
-def main(file_name: str = None, argument: tuple[str, str] | None = None):
-    processing_csv_file = ProcessingCsvFile(file_name, argument)
+def main(arguments: Namespace | None = None):
+    processing_csv_file = ProcessingCsvFile(arguments=arguments)
     return processing_csv_file.process_csv_file()
 
 
